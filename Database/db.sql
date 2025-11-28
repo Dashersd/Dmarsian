@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `capstone_db`
 --
+CREATE DATABASE IF NOT EXISTS `capstone_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `capstone_db`;
 
 -- --------------------------------------------------------
 
@@ -28,13 +30,14 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `activity_log` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `action_type` varchar(255) NOT NULL,
   `datetime` datetime NOT NULL,
   `admin_account` varchar(255) NOT NULL,
   `student_id` varchar(255) DEFAULT NULL,
-  `details` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `details` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=18;
 
 --
 -- Dumping data for table `activity_log`
@@ -66,11 +69,14 @@ INSERT INTO `activity_log` (`id`, `action_type`, `datetime`, `admin_account`, `s
 --
 
 CREATE TABLE `admin_accounts` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `username` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `password` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=3;
 
 --
 -- Dumping data for table `admin_accounts`
@@ -86,7 +92,7 @@ INSERT INTO `admin_accounts` (`id`, `email`, `username`, `password`) VALUES
 --
 
 CREATE TABLE `enrollment_requests` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `full_name` varchar(255) DEFAULT NULL,
   `phone` varchar(50) DEFAULT NULL,
   `school` varchar(100) DEFAULT NULL,
@@ -98,8 +104,9 @@ CREATE TABLE `enrollment_requests` (
   `parent_phone` varchar(50) DEFAULT NULL,
   `parent_email` varchar(100) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'pending',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=13;
 
 -- --------------------------------------------------------
 
@@ -108,7 +115,7 @@ CREATE TABLE `enrollment_requests` (
 --
 
 CREATE TABLE `payments` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `jeja_no` varchar(20) NOT NULL,
   `fullname` varchar(100) NOT NULL,
   `date_paid` date NOT NULL,
@@ -118,8 +125,9 @@ CREATE TABLE `payments` (
   `date_enrolled` date NOT NULL,
   `status` varchar(50) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=18;
 
 -- --------------------------------------------------------
 
@@ -128,7 +136,7 @@ CREATE TABLE `payments` (
 --
 
 CREATE TABLE `posts` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `image_path` varchar(500) DEFAULT NULL,
@@ -136,8 +144,9 @@ CREATE TABLE `posts` (
   `post_date` date NOT NULL,
   `status` enum('active','archived') DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=12;
 
 --
 -- Dumping data for table `posts`
@@ -160,7 +169,7 @@ INSERT INTO `posts` (`id`, `title`, `description`, `image_path`, `category`, `po
 --
 
 CREATE TABLE `registrations` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `student_name` varchar(100) NOT NULL,
   `address` varchar(255) NOT NULL,
   `parents_name` varchar(100) NOT NULL,
@@ -174,8 +183,9 @@ CREATE TABLE `registrations` (
   `enroll_type` varchar(50) NOT NULL,
   `date_registered` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` varchar(20) NOT NULL DEFAULT 'pending',
-  `trial_payment` decimal(10,2) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `trial_payment` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=8;
 
 -- --------------------------------------------------------
 
@@ -184,7 +194,7 @@ CREATE TABLE `registrations` (
 --
 
 CREATE TABLE `students` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `jeja_no` varchar(20) NOT NULL,
   `full_name` varchar(100) NOT NULL,
   `address` text NOT NULL,
@@ -200,8 +210,10 @@ CREATE TABLE `students` (
   `date_enrolled` date,
   `status` varchar(20) DEFAULT 'Active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `jeja_no` (`jeja_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=49;
 
 --
 -- Dumping data for table `students`
@@ -217,14 +229,17 @@ INSERT INTO `students` (`id`, `jeja_no`, `full_name`, `address`, `phone`, `email
 --
 
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `user_type` enum('admin','super_admin') DEFAULT 'admin',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci AUTO_INCREMENT=6;
 
 --
 -- Dumping data for table `users`
@@ -237,113 +252,8 @@ INSERT INTO `users` (`id`, `name`, `email`, `username`, `password`, `user_type`,
 (5, 'Jupay', 'jupay@gmail.com', 'Jupay', 'YAMY@M143', 'admin', '2025-06-17 10:46:32');
 
 --
--- Indexes for dumped tables
+-- Indexes and AUTO_INCREMENT are now defined in CREATE TABLE statements above
 --
-
---
--- Indexes for table `activity_log`
---
-ALTER TABLE `activity_log`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `admin_accounts`
---
-ALTER TABLE `admin_accounts`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `username` (`username`);
-
---
--- Indexes for table `enrollment_requests`
---
-ALTER TABLE `enrollment_requests`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `payments`
---
-ALTER TABLE `payments`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `posts`
---
-ALTER TABLE `posts`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `registrations`
---
-ALTER TABLE `registrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `students`
---
-ALTER TABLE `students`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `jeja_no` (`jeja_no`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `username` (`username`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `activity_log`
---
-ALTER TABLE `activity_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
-
---
--- AUTO_INCREMENT for table `admin_accounts`
---
-ALTER TABLE `admin_accounts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `enrollment_requests`
---
-ALTER TABLE `enrollment_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
--- AUTO_INCREMENT for table `payments`
---
-ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
-
---
--- AUTO_INCREMENT for table `posts`
---
-ALTER TABLE `posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT for table `registrations`
---
-ALTER TABLE `registrations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `students`
---
-ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
