@@ -4,10 +4,31 @@
  * Routes requests to appropriate PHP files
  */
 
+// Enable error reporting for debugging (disable in production after fixing)
+// Check if we're in production mode
+$isProduction = (getenv('APP_ENV') === 'production' || getenv('APP_ENV') === 'prod');
+
+if (!$isProduction) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    ini_set('error_log', '/tmp/php_errors.log');
+}
+
+// Set timezone
+date_default_timezone_set('Asia/Manila');
+
 // Get the requested URI
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 $requestPath = parse_url($requestUri, PHP_URL_PATH);
 $requestPath = ltrim($requestPath, '/');
+
+// Remove query string from path for file checking
+$requestPath = strtok($requestPath, '?');
 
 // Default to webpage.php for root
 if (empty($requestPath) || $requestPath === '/') {
@@ -17,16 +38,71 @@ if (empty($requestPath) || $requestPath === '/') {
 // Build file path (go up one directory from public/)
 $filePath = __DIR__ . '/../' . $requestPath;
 
+// Normalize path to prevent directory traversal
+$filePath = realpath($filePath);
+$rootPath = realpath(__DIR__ . '/..');
+
+// Security check: ensure file is within project root
+if ($filePath === false || strpos($filePath, $rootPath) !== 0) {
+    http_response_code(403);
+    header('Content-Type: text/html');
+    echo '<!DOCTYPE html><html><head><title>403 - Forbidden</title></head><body><h1>403 - Forbidden</h1><p>Access denied.</p></body></html>';
+    exit;
+}
+
 // Check if file exists
 if (file_exists($filePath) && is_file($filePath)) {
-    $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
     
     // Handle PHP files
     if ($extension === 'php') {
-        // Change to file's directory for relative includes
-        chdir(dirname($filePath));
-        require $filePath;
-        exit;
+        try {
+            // Change to file's directory for relative includes
+            $originalDir = getcwd();
+            chdir(dirname($filePath));
+            
+            // Capture any output before requiring
+            ob_start();
+            require $filePath;
+            $output = ob_get_clean();
+            
+            // Restore original directory
+            chdir($originalDir);
+            
+            // Output the file's content
+            echo $output;
+            exit;
+        } catch (Throwable $e) {
+            // Restore directory on error
+            if (isset($originalDir)) {
+                chdir($originalDir);
+            }
+            
+            http_response_code(500);
+            header('Content-Type: text/html');
+            
+            if (!$isProduction) {
+                echo '<!DOCTYPE html><html><head><title>500 - Internal Server Error</title></head><body>';
+                echo '<h1>500 - Internal Server Error</h1>';
+                echo '<h2>Error Details:</h2>';
+                echo '<pre style="background:#f0f0f0;padding:10px;border:1px solid #ccc;">';
+                echo 'Message: ' . htmlspecialchars($e->getMessage()) . "\n";
+                echo 'File: ' . htmlspecialchars($e->getFile()) . "\n";
+                echo 'Line: ' . $e->getLine() . "\n";
+                echo 'Stack Trace:' . "\n" . htmlspecialchars($e->getTraceAsString());
+                echo '</pre>';
+                echo '</body></html>';
+            } else {
+                echo '<!DOCTYPE html><html><head><title>500 - Internal Server Error</title></head><body>';
+                echo '<h1>500 - Internal Server Error</h1>';
+                echo '<p>The server encountered an error. Please try again later.</p>';
+                echo '</body></html>';
+            }
+            
+            // Log the error
+            error_log("PHP Error in {$filePath}: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            exit;
+        }
     }
     
     // Handle static files
@@ -45,6 +121,10 @@ if (file_exists($filePath) && is_file($filePath)) {
         'pdf' => 'application/pdf',
         'mp4' => 'video/mp4',
         'webm' => 'video/webm',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'eot' => 'application/vnd.ms-fontobject',
     ];
     
     $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
@@ -71,6 +151,9 @@ header('Content-Type: text/html');
 <body>
     <h1>404 - File Not Found</h1>
     <p>The requested file could not be found.</p>
+    <?php if (!$isProduction): ?>
+    <p><small>Requested path: <?php echo htmlspecialchars($requestPath); ?></small></p>
+    <?php endif; ?>
 </body>
 </html>
 
