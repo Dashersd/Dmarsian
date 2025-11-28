@@ -5,9 +5,63 @@ config.php
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+
+# Composer
+/vendor/
+composer.lock
 
 # Large folders - user uploads and media files (should not be in version control)
 uploads/
 Video/
 
+# Database dumps
+*.sql
 db.sql
+*.sql.gz
+
+# Logs
+*.log
+logs/
+error_log
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# PHPMailer (if using Composer version, can remove PHPMailer-master folder)
+# PHPMailer-master/
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build files
+dist/
+build/
