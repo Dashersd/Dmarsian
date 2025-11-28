@@ -97,10 +97,10 @@ Options -Indexes
 </IfModule>
 
 # Prevent access to uploads directory listing (but allow file access)
-<DirectoryMatch "^.*/uploads/">
-    Options -Indexes
-    AllowOverride None
-</DirectoryMatch>
+# Note: <DirectoryMatch> is not allowed in .htaccess files
+# Directory indexing is already disabled globally with "Options -Indexes" above (line 58)
+# This effectively prevents directory listing in uploads/ and all other directories
+# File access is still allowed - only directory listing is blocked
 
 # UTF-8 encoding
 AddDefaultCharset UTF-8
