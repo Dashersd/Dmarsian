@@ -37,6 +37,6 @@ function loadEnv($filePath) {
 }
 
 // Load .env file from the same directory
-$envPath = _DIR_ . DIRECTORY_SEPARATOR . '.env';
+$envPath = __DIR__ . DIRECTORY_SEPARATOR . '.env';
 loadEnv($envPath);
 ?>
